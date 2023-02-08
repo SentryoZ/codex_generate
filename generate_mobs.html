@@ -11,7 +11,7 @@
 <div class="container">
     <div id="result" hidden="hidden">
         <form>
-            <div class="field" tabindex="1">
+            <div class="field">
                 <label for="result_content">
                     <strong>Result</strong>
                     <textarea rows="25" cols="50" style="background: lightgray" id="result_content" readonly></textarea>
@@ -24,49 +24,72 @@
     </div>
 </div>
 <div class="container">
+    <div id="inv" hidden="hidden">
+        <form>
+            <div class="field">
+                <label for="inv_content">
+                    <strong>Result</strong>
+                    <textarea rows="25" cols="50" style="background: lightgray" id="inv_content" readonly></textarea>
+                </label>
+            </div>
+        </form>
+        <br>
+        <button class="button" type="button" onclick="copyText()">Copy</button>
+        <button class="button" type="button" onclick="closeResult()">Close</button>
+    </div>
+</div>
+<div class="container">
     <form onsubmit="generateMob(); return false;">
-        <div class="field" tabindex="1">
+        <div class="field">
             <label for="mob_id">
                 <strong>Mob info</strong>
             </label>
         </div>
-        <div class="field" tabindex="1">
+
+        <div class="field">
+            <label for="inv_slot">
+                Inventory slot
+            </label>
+            <input name="inv_slot" id="inv_slot" type="number" placeholder="e.g. 1" required>
+        </div>
+
+        <div class="field">
             <label for="mob_name">
                 Mob Name
             </label>
             <input name="mob_name" id="mob_name" type="text" placeholder="e.g. Sand Warrior" required>
         </div>
-        <div class="field" tabindex="1">
+        <div class="field">
             <label for="mob_id">
                 Mob Id
             </label>
             <input name="mob_id" id="mob_id" type="text" placeholder="e.g. sand-warrior" required>
         </div>
-        <div class="field" tabindex="6">
+        <div class="field">
             <label for="lore">
                 Lore
             </label>
             <textarea rows="5" name="lore" id="lore" placeholder="type here" required></textarea>
         </div>
         <hr>
-        <div class="field" tabindex="1">
+        <div class="field">
             <label>
                 <strong>Drops</strong>
             </label>
         </div>
-        <div class="field" tabindex="6">
+        <div class="field">
             <label for="artifact">
                 Artifact
             </label>
             <textarea rows="5" name="artifact" id="artifact" placeholder="type here" required></textarea>
         </div>
-        <div class="field" tabindex="6">
+        <div class="field">
             <label for="items">
                 Items
             </label>
             <textarea rows="5" name="items" id="items" placeholder="type here" required></textarea>
         </div>
-        <div class="field" tabindex="6">
+        <div class="field">
             <label for="exp">
                 Exp
             </label>
@@ -184,12 +207,29 @@
 
 
         $("#result_content").html(result_string);
+
+        let inv_string = "";
+        let inv_slot = $('#inv_slot').val();
+
+        inv_string += `    '${inv_slot}':\n`;
+        inv_string += `      type: monsters;${mob_id}\n`;
+        inv_string += `      item: PAPER\n`;
+        inv_string += `      name: '&6Discovery: %name%'\n`;
+        inv_string += `      lore:\n`;
+        inv_string += `      - '%lore%'\n`;
+        inv_string += `     click_commands:\n`;
+        inv_string += `      - "goop mythicmobs runSkillAs Tell-Mob-${mob_id}-Kill %player%"\n`;
+
+        $("#inv_content").html(inv_string);
+
         $("#result").show();
+        $("#inv").show();
         $("html, body").animate({scrollTop: 0}, "slow");
     }
 
     function closeResult() {
         $("#result").hide();
+        $("#inv").hide();
     }
 
     function copyText() {
