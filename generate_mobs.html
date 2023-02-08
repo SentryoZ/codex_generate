@@ -8,35 +8,39 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
 </head>
 <body>
-<div class="container">
-    <div id="result" hidden="hidden">
-        <form>
-            <div class="field">
-                <label for="result_content">
-                    <strong>Result</strong>
-                    <textarea rows="15" cols="50" style="background: lightgray" id="result_content" readonly></textarea>
-                </label>
-            </div>
-        </form>
-        <br>
-        <button class="button" type="button" onclick="copyText()">Copy</button>
-        <button class="button" type="button" onclick="closeResult()">Close</button>
+<div id="content_container" hidden="hidden">
+    <div class="container" style="align-items: flex-start">
+        <div id="result">
+            <form style="width: 550px; padding: 10px">
+                <div class="field">
+                    <label for="result_content">
+                        <strong>Item</strong>
+                        <textarea rows="15" cols="50" style="background: lightgray" id="result_content"
+                                  readonly></textarea>
+                    </label>
+                </div>
+            </form>
+        </div>
+        <div id="inv" style="">
+            <form style="width: 550px; padding: 10px">
+                <div class="field">
+                    <label for="inv_content">
+                        <strong>Inventory</strong>
+                        <textarea rows="15" cols="50" style="background: lightgray" id="inv_content"
+                                  readonly></textarea>
+                    </label>
+                </div>
+            </form>
+            <br>
+        </div>
+    </div>
+    <div style="display: flex; justify-content: center">
+        <button style="margin: 0 5px" class="button" type="button" onclick="copyText('result_content')">Copy Item</button>
+        <button style="margin: 0 5px" class="button" type="button" onclick="copyText('inv_content')">Copy Inventory</button>
+        <button style="margin: 0 5px" class="button" type="button" onclick="closeResult()">Close</button>
     </div>
 </div>
 <div class="container">
-    <div id="inv" hidden="hidden">
-        <form>
-            <div class="field">
-                <label for="inv_content">
-                    <strong>Result</strong>
-                    <textarea rows="10" cols="50" style="background: lightgray" id="inv_content" readonly></textarea>
-                </label>
-            </div>
-        </form>
-        <br>
-        <button class="button" type="button" onclick="copyText()">Copy</button>
-        <button class="button" type="button" onclick="closeResult()">Close</button>
-    </div>
 </div>
 <div class="container">
     <form onsubmit="generateMob(); return false;">
@@ -222,18 +226,16 @@
 
         $("#inv_content").html(inv_string);
 
-        $("#result").show();
-        $("#inv").show();
+        $("#content_container").show();
         $("html, body").animate({scrollTop: 0}, "slow");
     }
 
     function closeResult() {
-        $("#result").hide();
-        $("#inv").hide();
+        $("#content_container").hide();
     }
 
-    function copyText() {
-        let copyText = document.getElementById("result_content");
+    function copyText(id) {
+        let copyText = document.getElementById(id);
 
         // Select the text field
         copyText.select();
