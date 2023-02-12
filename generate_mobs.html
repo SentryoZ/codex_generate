@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
 </head>
 <body>
-<div id="content_container">
+<div id="content_container" hidden="hidden">
     <div class="container" style="align-items: flex-start">
         <div id="result">
             <form style="width: 550px; padding: 10px">
@@ -156,8 +156,8 @@
     function generate() {
         generateMob();
         generateInventoryItem();
-        generateDropSkillCall()
-        generateDropTable()
+        generateDropSkillCall();
+        generateDropTable();
 
         $("#content_container").show();
         $("html, body").animate({scrollTop: 0}, "slow");
