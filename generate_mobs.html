@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
 </head>
 <body>
-<div id="content_container" hidden="hidden">
+<div id="content_container">
     <div class="container" style="align-items: flex-start">
         <div id="result">
             <form style="width: 550px; padding: 10px">
@@ -34,16 +34,47 @@
             <br>
         </div>
     </div>
+    <div class="container" style="align-items: flex-start">
+        <div id="skill_call">
+            <form style="width: 550px; padding: 10px">
+                <div class="field">
+                    <label for="drop_skill_call_content">
+                        <strong>Skills</strong>
+                        <textarea rows="15" cols="50" style="background: lightgray" id="drop_skill_call_content"
+                                  readonly></textarea>
+                    </label>
+                </div>
+            </form>
+        </div>
+        <div id="drop_table" style="">
+            <form style="width: 550px; padding: 10px">
+                <div class="field">
+                    <label for="drop_table_content">
+                        <strong>Drop Table</strong>
+                        <textarea rows="15" cols="50" style="background: lightgray" id="drop_table_content"
+                                  readonly></textarea>
+                    </label>
+                </div>
+            </form>
+            <br>
+        </div>
+    </div>
     <div style="display: flex; justify-content: center">
-        <button style="margin: 0 5px" class="button" type="button" onclick="copyText('result_content')">Copy Item</button>
-        <button style="margin: 0 5px" class="button" type="button" onclick="copyText('inv_content')">Copy Inventory</button>
+        <button style="margin: 0 5px" class="button" type="button" onclick="copyText('result_content')">Copy Item
+        </button>
+        <button style="margin: 0 5px" class="button" type="button" onclick="copyText('inv_content')">Copy Inventory
+        </button>
+        <button style="margin: 0 5px" class="button" type="button" onclick="copyText('drop_skill_call_content')">Copy Skill
+        </button>
+        <button style="margin: 0 5px" class="button" type="button" onclick="copyText('drop_table_content')">Copy Drop Table
+        </button>
         <button style="margin: 0 5px" class="button" type="button" onclick="closeResult()">Close</button>
     </div>
 </div>
 <div class="container">
 </div>
 <div class="container">
-    <form onsubmit="generateMob(); return false;">
+    <form onsubmit="generate(); return false;">
         <div class="field">
             <label for="mob_id">
                 <strong>Mob info</strong>
@@ -94,10 +125,22 @@
             <textarea rows="5" name="items" id="items" placeholder="type here" required></textarea>
         </div>
         <div class="field">
+            <label for="specific_elite_drops">
+                Specific Elite Drops
+            </label>
+            <textarea rows="5" name="items" id="specific_elite_drops" placeholder="type here"></textarea>
+        </div>
+        <div class="field">
+            <label for="specific_mythic_drops">
+                Specific Mythic Drops
+            </label>
+            <textarea rows="5" name="items" id="specific_mythic_drops" placeholder="type here"></textarea>
+        </div>
+        <div class="field">
             <label for="exp">
                 Exp
             </label>
-            <input name="exp" id="exp" type="number" placeholder="e.g. 10" required>
+            <input name="exp" id="exp" type="text" placeholder="e.g. 10" required>
         </div>
 
         <button class="button" type="submit">Generate Mob</button>
@@ -107,6 +150,19 @@
         integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
         crossorigin="anonymous"></script>
 <script>
+    const ITEM_PATTERN = /([A-Za-z]+) ([A-Za-z_]+) ([A-Za-z_]+) ([0-9]+) ([0-9,]+) ([0-9,]+) ([0-9,]+)/;
+    const EXP_PATTERN = /([0-9]+) ([0-9]+) ([0-9]+)/;
+
+    function generate() {
+        generateMob();
+        generateInventoryItem();
+        generateDropSkillCall()
+        generateDropTable()
+
+        $("#content_container").show();
+        $("html, body").animate({scrollTop: 0}, "slow");
+    }
+
     function generateMob() {
         let result_string = "";
         let mob_name = $("#mob_name").val();
@@ -174,29 +230,36 @@
         let items = $('#items').val();
         let items_array = items.split('\n');
         items_array.forEach((item_line) => {
-            if (item_line.split(' ').length < 2) {
-                return "";
-            }
-            let item_chance = getChance(item_line);
-            let item_name = item_line.replace(` ${item_chance}`, "");
+            if (ITEM_PATTERN.test(item_line)){
+                let item_array = item_line.split(' ');
+                let item_name = item_array[2];
+                let item_chance_normal = item_array[3];
+                let item_chance_elite = item_array[4];
+                let item_chance_mythic = item_array[5];
 
-            if (parseFloat(item_chance) < 0 || parseFloat(item_chance) > 100) {
-                return "";
-            }
-            drop_string += `        - "#e6a1a1&l❱ &7${item_name} &8(${item_chance}%)"\n`;
-            if (!have_drop) {
-                have_drop = true;
-            }
+                let item_result = `        - "#e6a1a1&l❱ &7${item_name} `;
+                if (parseFloat(item_chance_normal) > 0 || parseFloat(item_chance_normal) <= 100) {
+                    item_result += `&8(${item_chance_normal}%)`;
+                }
+                if (parseFloat(item_chance_elite) > 0 || parseFloat(item_chance_elite) <= 100) {
+                    item_result += `&7/#8a2ee6(${item_chance_elite}%)`;
+                }
+                if (parseFloat(item_chance_mythic) > 0 || parseFloat(item_chance_mythic) <= 100) {
+                    item_result += `&7/#8a2ee6(${item_chance_mythic}%)`;
+                }
 
+                item_result += `\n`;
+                drop_string += item_result;
+            }
         })
 
         let exp = $("#exp").val();
-        if (exp !== "") {
-            drop_string += `        - "#e6a1a1&l❱ &7${exp} Exp"\n`;
+        if (EXP_PATTERN.test(exp)) {
+            let exp_array = items.split('\n');
+            drop_string += `        - "#e6a1a1&l❱ &7${exp_array[0]}/#8a2ee6${exp_array[1]}/#e62e2e${exp_array[2]} &7Exp""\n`;
             if (!have_drop) {
                 have_drop = true;
             }
-
         }
 
         if (have_drop) {
@@ -211,6 +274,10 @@
 
 
         $("#result_content").html(result_string);
+    }
+
+    function generateInventoryItem(){
+        let mob_id = $("#mob_id").val();
 
         let inv_string = "";
         let inv_slot = $('#inv_slot').val();
@@ -225,9 +292,114 @@
         inv_string += `      - "goop mythicmobs runSkillAs Tell-Mob-${mob_id}-Kill %player%"\n`;
 
         $("#inv_content").html(inv_string);
+    }
 
-        $("#content_container").show();
-        $("html, body").animate({scrollTop: 0}, "slow");
+    function generateDropSkillCall(){
+        let mob_id = $("#mob_id").val();
+        let drop_skills = ``;
+        drop_skills += `  - dropitem{i=${mob_id}-Drop} ?!variableisset{var=caster.elite} @self ~onDeath\n`
+        drop_skills += `  - dropitem{i=${mob_id}-Elite-Drop} ?variableisset{var=caster.elite} @self ~onDeath\n`
+        drop_skills += `  - dropitem{i=${mob_id}-Mythic-Drop} ?variableisset{var=caster.mythic} @self ~onDeath\n`
+
+        $("#drop_skill_call_content").html(drop_skills);
+    }
+
+    function generateDropTable(){
+        let mob_id = $("#mob_id").val();
+
+        let normal_drop = '';
+        let elite_drop = '';
+        let mythic_drop = '';
+
+        normal_drop += `${mob_id}-Drop:\n`;
+        normal_drop += `  #Conditions:\n`;
+        normal_drop += `  #- variableisset{var=caster.elite} false\n`;
+        normal_drop += `  #- variableisset{var=caster.mythic} false\n`;
+        normal_drop += `  Drops:\n`;
+
+        elite_drop += `${mob_id}-Elite-Drop:\n`;
+        elite_drop += `  #Conditions:\n`;
+        elite_drop += `  #- variableisset{var=caster.elite} true\n`;
+        elite_drop += `  Drops:\n`;
+
+        mythic_drop += `${mob_id}-Mythic-Drop:\n`;
+        mythic_drop += `  #Conditions:\n`;
+        mythic_drop += `  #- variableisset{var=caster.mythic} true\n`;
+        mythic_drop += `  Drops:\n`;
+
+        let normal_have_drop = false;
+        let elite_have_drop = false;
+        let mythic_have_drop = false;
+
+        let normal_items = ``;
+        let elite_items = ``;
+        let mythic_items = ``;
+
+        let items = $('#items').val();
+        let items_array = items.split('\n');
+        items_array.forEach((item_line) => {
+            if (ITEM_PATTERN.test(item_line)){
+                let item_array = item_line.split(' ');
+                let item_type = item_array[0];
+                let item_id = item_array[1];
+
+                let item_chance_normal = item_array[3];
+                let item_chance_elite = item_array[4];
+                let item_chance_mythic = item_array[5];
+
+
+                if (parseFloat(item_chance_normal) > 0 || parseFloat(item_chance_normal) <= 100) {
+                    normal_items += `  #- mmoitems{type=${item_type};id=${item_id};amount=1} 1 ${parseFloat(item_chance_normal)/100}\n`;
+                    if (!normal_have_drop){
+                        normal_have_drop = true;
+                    }
+                }
+                if (parseFloat(item_chance_elite) > 0 || parseFloat(item_chance_elite) <= 100) {
+                    elite_items += `  #- mmoitems{type=${item_type};id=${item_id};amount=1} 1 ${parseFloat(item_chance_elite)/100}\n`;
+                    if (!elite_have_drop){
+                        elite_have_drop = true;
+                    }
+                }
+                if (parseFloat(item_chance_mythic) > 0 || parseFloat(item_chance_mythic) <= 100) {
+                    mythic_items += `  #- mmoitems{type=${item_type};id=${item_id};amount=1} 1 ${parseFloat(item_chance_mythic)/100}\n`;
+                    if (!mythic_have_drop){
+                        mythic_have_drop = true;
+                    }
+                }
+
+            }
+        })
+
+        let exp = $("#exp").val();
+        if (EXP_PATTERN.test(exp)) {
+            let exp_array = items.split('\n');
+            normal_items += `  - exp ${exp_array[0]} 1\n`;
+            elite_items += `  - exp ${exp_array[1]} 1\n`;
+            mythic_items += `  - exp ${exp_array[2]} 1\n`;
+            normal_have_drop = true;
+            elite_have_drop = true;
+            mythic_have_drop = true;
+        }
+        normal_drop += normal_items;
+        elite_drop += elite_items;
+        mythic_drop += mythic_items;
+
+        let drop_table = ``;
+
+        if (normal_have_drop){
+            drop_table += normal_drop;
+            drop_table += '/n';
+        }
+        if (elite_have_drop){
+            drop_table += elite_drop;
+            drop_table += '/n';
+        }
+        if (mythic_have_drop){
+            drop_table += mythic_drop;
+            drop_table += '/n';
+        }
+        $("#drop_table_content").html(drop_table);
+
     }
 
     function closeResult() {
@@ -236,18 +408,9 @@
 
     function copyText(id) {
         let copyText = document.getElementById(id);
-
-        // Select the text field
         copyText.select();
-        copyText.setSelectionRange(0, 99999); // For mobile devices
-
-        // Copy the text inside the text field
+        copyText.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(copyText.value);
-    }
-
-    function getChance(string) {
-        let string_array = string.split(" ");
-        return string_array[string_array.length - 1];
     }
 </script>
 </body>
