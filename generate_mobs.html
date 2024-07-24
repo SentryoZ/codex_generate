@@ -312,19 +312,12 @@
         let mythic_drop = '';
 
         normal_drop += `${mob_id}-Drop:\n`;
-        normal_drop += `  #Conditions:\n`;
-        normal_drop += `  #- variableisset{var=caster.elite} false\n`;
-        normal_drop += `  #- variableisset{var=caster.mythic} false\n`;
         normal_drop += `  Drops:\n`;
 
         elite_drop += `${mob_id}-Elite-Drop:\n`;
-        elite_drop += `  #Conditions:\n`;
-        elite_drop += `  #- variableisset{var=caster.elite} true\n`;
         elite_drop += `  Drops:\n`;
 
         mythic_drop += `${mob_id}-Mythic-Drop:\n`;
-        mythic_drop += `  #Conditions:\n`;
-        mythic_drop += `  #- variableisset{var=caster.mythic} true\n`;
         mythic_drop += `  Drops:\n`;
 
         let normal_have_drop = false;
